@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>responsive images</title>
+	<meta name="viewport" content="width=device-width" />
+
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+		}
+
+		html, body {
+			width: 100%;
+			position: relative;
+			height: 100%;
+		}
+
+		body:before {
+			-webkit-transition: opacity .25s;
+			transition: opacity .25s;
+			border: solid 5px blue;
+			bottom: 0;
+			content: '';
+			left: 0;
+			opacity: 0;
+			position: fixed;
+			right: 0;
+			top: 0;
+		}
+
+		.drag-active:before {
+			opacity: 1;
+		}
+
+		img {
+			height: auto;
+			width: 100%;
+			vertical-align: top;
+		}
+
+		.row {
+			clear: both;
+		}
+
+		.tile {
+			box-sizing: border-box;
+			float: left;
+		}
+
+		.row.span-1 .tile {
+			width: 100%;
+		}
+
+		.row.span-2 .tile {
+			width: calc(100% / 2);
+		}
+
+		.row.span-3 .tile {
+			width: calc(100% / 3);
+		}
+
+		.row.span-4 .tile {
+			width: calc(100% / 4);
+		}
+
+		.row.span-5 .tile {
+			width: calc(100% / 5);
+		}
+	</style>
+</head>
+<body>
+
+<script>
+	var dropArea = document,
+		activeClass= 'drag-active',
+		rows = 5,
+		image;
+
+	function clearImages() {
+		var imageRows = document.getElementsByClassName('row');
+
+		while(imageRows[0]) {
+			imageRows[0].parentNode.removeChild(imageRows[0]);
+		}
+	}
+
+	function tileImage() {
+		var i = 1,
+			fragment = document.createDocumentFragment(),
+			row;
+
+		for(; i <= rows; i++) {
+			row = createRow(i);
+
+			fragment.appendChild(row);
+		}
+
+		document.body.appendChild(fragment);
+	}
+
+	function createRow(numTiles) {
+		var i = 1,
+			row = document.createElement('div'),
+			img = new Image(),
+			tile;
+
+		img.src = image;
+
+		row.classList.add('row', 'span-' + numTiles);
+
+		for(; i <= numTiles; i++) {
+			tile = document.createElement('div');
+			tile.classList.add('tile');
+			tile.appendChild(img.cloneNode());
+
+			row.appendChild(tile);
+		}
+
+		return row;
+	}
+
+	function dropImage(e) {
+		e.preventDefault();
+		document.body.classList.remove(activeClass);
+
+		var file = e.dataTransfer.files[0],
+			reader = new FileReader();
+
+		reader.onload = function (e) {
+			image = e.target.result;
+
+			clearImages();
+			tileImage();
+		};
+
+		reader.readAsDataURL(file);
+	}
+
+	function initEvents() {
+		dropArea.addEventListener('dragenter', function(e) {
+			document.body.classList.add(activeClass);
+		}, false);
+
+		dropArea.addEventListener('dragleave', function(e) {
+			document.body.classList.remove(activeClass);
+		}, false);
+
+		dropArea.addEventListener('dragover', function(e) {
+			// allow the drop
+			e.preventDefault();
+		}, false);
+
+		dropArea.addEventListener('drop', dropImage, false);
+	}
+
+	function updateImage() {
+		//
+	}
+
+	if(document.addEventListener) {
+		document.addEventListener('DOMContentLoaded', function(event) {
+			initEvents();
+		});
+	}
+</script>
+
+</body>
+</html>
