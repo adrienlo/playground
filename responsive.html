@@ -12,14 +12,14 @@
 		}
 
 		html, body {
-			width: 100%;
-			position: relative;
+			background-size: contain;
+			background: url('responsive_instructions.svg') no-repeat center center;
 			height: 100%;
+			position: relative;
+			width: 100%;
 		}
 
 		body:before {
-			-webkit-transition: opacity .25s;
-			transition: opacity .25s;
 			border: solid 5px blue;
 			bottom: 0;
 			content: '';
@@ -28,6 +28,8 @@
 			position: fixed;
 			right: 0;
 			top: 0;
+			-webkit-transition: opacity .25s;
+			transition: opacity .25s;
 		}
 
 		.drag-active:before {
@@ -78,26 +80,19 @@
 		rows = 5,
 		image;
 
-	function clearImages() {
-		var imageRows = document.getElementsByClassName('row');
-
-		while(imageRows[0]) {
-			imageRows[0].parentNode.removeChild(imageRows[0]);
-		}
-	}
-
 	function tileImage() {
-		var i = 1,
-			fragment = document.createDocumentFragment(),
-			row;
+		var imgArr = document.querySelectorAll('.row .tile img'),
+			img,
+			i = 0,
+			len = imgArr.length;
 
-		for(; i <= rows; i++) {
-			row = createRow(i);
+		for(; i <= len; i++) {
+			img = imgArr[i];
 
-			fragment.appendChild(row);
+			if(img) {
+				img.src = image;
+			}
 		}
-
-		document.body.appendChild(fragment);
 	}
 
 	function createRow(numTiles) {
@@ -105,8 +100,6 @@
 			row = document.createElement('div'),
 			img = new Image(),
 			tile;
-
-		img.src = image;
 
 		row.classList.add('row', 'span-' + numTiles);
 
@@ -121,6 +114,20 @@
 		return row;
 	}
 
+	function createRows() {
+		var i = 1,
+			fragment = document.createDocumentFragment(),
+			row;
+
+		for(; i <= rows; i++) {
+			row = createRow(i);
+
+			fragment.appendChild(row);
+		}
+
+		document.body.appendChild(fragment);
+	}
+
 	function dropImage(e) {
 		e.preventDefault();
 		document.body.classList.remove(activeClass);
@@ -131,14 +138,13 @@
 		reader.onload = function (e) {
 			image = e.target.result;
 
-			clearImages();
 			tileImage();
 		};
 
 		reader.readAsDataURL(file);
 	}
 
-	function initEvents() {
+	function bindEvents() {
 		dropArea.addEventListener('dragenter', function(e) {
 			document.body.classList.add(activeClass);
 		}, false);
@@ -155,14 +161,13 @@
 		dropArea.addEventListener('drop', dropImage, false);
 	}
 
-	function updateImage() {
-		//
+	function init() {
+		bindEvents();
+		createRows();
 	}
 
 	if(document.addEventListener) {
-		document.addEventListener('DOMContentLoaded', function(event) {
-			initEvents();
-		});
+		document.addEventListener('DOMContentLoaded', init);
 	}
 </script>
 
